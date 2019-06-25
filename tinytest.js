@@ -37,6 +37,18 @@
  * -Joe Walnes
  * MIT License. See https://github.com/joewalnes/jstinytest/
  */
+const TinyTestHelper = {
+  renderStats: function(tests, failures) {
+    let numberOfTests = Object.keys(tests).length;
+    let passes = numberOfTests - failures;
+    let results = `Ran ${numberOfTests} tests with ${passes} passes and ${failures} failures.`
+
+    let summary = document.createElement('h1');
+    summary.textContent = results;
+    document.body.appendChild(summary);
+  }
+}
+
 const TinyTest = {
 
     run: function(tests) {
@@ -45,16 +57,18 @@ const TinyTest = {
             let testAction = tests[testName];
             try {
                 testAction();
-                console.log('Test:', testName, 'OK');
+                console.log('%c' + testName, 'color: green');
             } catch (e) {
                 failures++;
-                console.error('Test:', testName, 'FAILED', e);
+                console.groupCollapsed('%c' + testName, 'color: red');
                 console.error(e.stack);
+                console.groupEnd();
             }
         }
         setTimeout(function() { // Give document a chance to complete
             if (window.document && document.body) {
-                document.body.style.backgroundColor = (failures == 0 ? '#99ff99' : '#ff9999');
+                document.body.style.backgroundColor = (failures === 0 ? '#99ff99' : '#ff9999');
+                TinyTestHelper.renderStats(tests, failures);
             }
         }, 0);
     },
@@ -86,6 +100,6 @@ const TinyTest = {
 const fail                = TinyTest.fail,
       assert              = TinyTest.assert,
       assertEquals        = TinyTest.assertEquals,
-      eq                  = TinyTest.assertEquals, // alias for assertEquals
+      eq                  = TinyTest.assertStrictEquals, // alias for assertStrictEquals
       assertStrictEquals  = TinyTest.assertStrictEquals,
       tests               = TinyTest.run;
